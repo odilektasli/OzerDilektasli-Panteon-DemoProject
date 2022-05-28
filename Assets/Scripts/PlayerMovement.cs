@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -12,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
-
+    private bool canMove = true;
     private Vector3 initialCameraPosition;
     Vector3 mousePosition;
     float initialMousePositionX;
@@ -52,18 +51,25 @@ public class PlayerMovement : MonoBehaviour
 
             if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
             {
-                transform.position = new Vector3( Mathf.Clamp(transform.position.x + mouseDragDistance, platformXOffset * -1, platformXOffset), transform.position.y, transform.position.z);
+                transform.position = new Vector3( Mathf.Clamp(transform.position.x + mouseDragDistance, managerSO.platformXOffset * -1, managerSO.platformXOffset), transform.position.y, transform.position.z);
                 initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
             }
 
         }
+
+        //Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 10f), 2.0f * Time.deltaTime);
     }
 
     private void FixedUpdate()
     {
         //Setting of character velocity and camera positions.
-        playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
-        Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z - 10);
+        if(canMove)
+        {
+
+            playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
+            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z - 10);
+        }
+
     }
 
     /// <summary>
@@ -78,8 +84,29 @@ public class PlayerMovement : MonoBehaviour
 
     private void StaticObstacleHit()
     {
+        playerRigidBody.velocity = new Vector3(0, 0, 0);
+        playerAnim.SetBool("isFallState", true);
+        StartCoroutine(WaitFallAnimation());
+
+
+        //transform.position = new Vector3(0, 0, 0);
+        //Camera.main.transform.position = initialCameraPosition;
+    }
+
+    IEnumerator WaitFallAnimation()
+    {
+        canMove = false;
+        yield return new WaitForSeconds(1f);
+
         transform.position = new Vector3(0, 0, 0);
-        Camera.main.transform.position = initialCameraPosition;
+        managerSO.InitializeCameraPosition(true);
+        yield return new WaitForSeconds(2f);
+        playerAnim.SetBool("isFallState", false);
+        playerAnim.SetBool("isRunState", true);
+        managerSO.InitializeCameraPosition(false);
+        canMove = true;
+
+
     }
 
     private void OnDisable()
