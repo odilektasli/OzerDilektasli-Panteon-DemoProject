@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class ObjectPoolHandler : MonoBehaviour
 {
+    public int poolSize;
+
     private List<GameObject> pool = new List<GameObject>();
-    private int poolSize = 5;
     private int activeObjectCount;
     private GameObject objectType;
     private GameObject instantiatedObject;
@@ -14,16 +15,13 @@ public class ObjectPoolHandler : MonoBehaviour
     /// Instantation of the pool object by given object type.
     /// </summary>
     /// <param name="poolObject"></param>
-    /// <param name="objectTransform"></param>
-    public void InstatiatePool(GameObject poolObject, Vector3 objectTransform)
+    public void InstatiatePool(GameObject poolObject)
     {
         objectType = poolObject;
         for (int poolIndex = 0; poolIndex < poolSize; poolIndex++)
         {
-            instantiatedObject = Instantiate(poolObject, objectTransform, Quaternion.identity);
+            InstatiateObject();
             instantiatedObject.SetActive(false);
-            instantiatedObject.transform.parent = transform;
-            pool.Add(instantiatedObject);
         }
     }
 
@@ -36,9 +34,8 @@ public class ObjectPoolHandler : MonoBehaviour
        
         if (activeObjectCount == poolSize)
         {
-            GameObject dummyParticle = Instantiate(objectType, hitPosition, Quaternion.identity);
-            pool.Add(dummyParticle);
-            ActivateObject(dummyParticle, hitPosition);
+            InstatiateObject();
+            ActivateObject(instantiatedObject, hitPosition);
             poolSize++;
         }
 
@@ -57,7 +54,15 @@ public class ObjectPoolHandler : MonoBehaviour
         activeObjectCount++;
 
     }
-
+    /// <summary>
+    /// Instantiates the pooling object.
+    /// </summary>
+    private void InstatiateObject()
+    {
+        instantiatedObject = Instantiate(objectType, transform.position, Quaternion.identity);
+        instantiatedObject.transform.parent = transform;
+        pool.Add(instantiatedObject);
+    }
     /// <summary>
     /// Activation of given object with transform.
     /// </summary>

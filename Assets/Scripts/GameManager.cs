@@ -7,10 +7,7 @@ public class GameManager : MonoBehaviour
 {
     
     public ManagerSOScript managerSO;
-    public GameObject hitParticle;
-    public int hitParticlePoolSize;
     public GameObject poolingComponentRef;
-    public static int initialParticlePoolSize;
 
     public List<GameObject> poolingObjects;
     public List<ObjectPoolHandler> poolList = new List<ObjectPoolHandler>();
@@ -23,7 +20,7 @@ public class GameManager : MonoBehaviour
         for (int objectIndex = 0; objectIndex < poolingObjects.Count; objectIndex++)
         {
             instantiatedPoolObject = Instantiate(poolingComponentRef).GetComponent<ObjectPoolHandler>();
-            instantiatedPoolObject.InstatiatePool(poolingObjects[objectIndex], transform.position);
+            instantiatedPoolObject.InstatiatePool(poolingObjects[objectIndex]);
             poolList.Insert(objectIndex, instantiatedPoolObject);
         }
 
