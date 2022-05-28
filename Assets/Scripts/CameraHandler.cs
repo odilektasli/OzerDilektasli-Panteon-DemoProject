@@ -38,10 +38,7 @@ public class CameraHandler : MonoBehaviour
             isPoisitonInitialization = false;
             managerSO.CameraUpdateFinished();
         }
-
         
-
-        Debug.Log(transform.position.z - initialPozition.z);
     }
 
     private void FixedUpdate()
