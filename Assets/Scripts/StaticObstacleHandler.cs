@@ -14,11 +14,11 @@ public class StaticObstacleHandler : MonoBehaviour
 
     private void Awake()
     {
-        instantiatedParticleObject = Instantiate(dustParticleObject, new Vector3(transform.position.x, transform.position.y, transform.position.z  - 0.5f), Quaternion.identity);
-        instantiatedParticleObject.transform.localScale = new Vector3(2, 2, 2);
-        dustParticleObject.transform.position = transform.position;
-        dustParticle = instantiatedParticleObject.GetComponent<ParticleSystem>();
-        dustParticle.Stop();
+        //instantiatedParticleObject = Instantiate(dustParticleObject, new Vector3(transform.position.x, transform.position.y, transform.position.z  - 0.5f), Quaternion.identity);
+        //instantiatedParticleObject.transform.localScale = new Vector3(2, 2, 2);
+        //dustParticleObject.transform.position = transform.position;
+        //dustParticle = instantiatedParticleObject.GetComponent<ParticleSystem>();
+        //dustParticle.Stop();
     }
 
     void Start()
@@ -32,13 +32,16 @@ public class StaticObstacleHandler : MonoBehaviour
         
     }
 
-    private void OnCollisionEnter(Collision collision)
+
+    private void OnTriggerEnter(Collider other)
     {
-        if(collision.gameObject.tag == "Character")
+        if (other.gameObject.tag == "Character")
         {
+            Debug.Log("anoooo");
             managerSO.HitByObstacle();
-            dustParticle.Play();
+            managerSO.GetHitParticle(new Vector3(transform.position.x, transform.position.y, transform.position.z - 0.5f));
 
         }
     }
+
 }

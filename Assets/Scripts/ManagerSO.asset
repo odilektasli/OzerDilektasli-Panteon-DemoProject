@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: ManagerSO
   m_EditorClassIdentifier: 
   platformXOffset: 2
+  particleLifeSpan: 3
