@@ -2,67 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class GameManager : MonoBehaviour
 {
+    
     public ManagerSOScript managerSO;
     public GameObject hitParticle;
     public int hitParticlePoolSize;
+    public GameObject poolingComponentRef;
+    public static int initialParticlePoolSize;
 
-    private List<GameObject> hitParticlePool = new List<GameObject>();
-    private GameObject instantiatedParticleObject;
-
-    private int activeHitParticleCount;
-    // Start is called before the first frame update
+    public List<GameObject> poolingObjects;
+    public List<ObjectPoolHandler> poolList = new List<ObjectPoolHandler>();
+    private ObjectPoolHandler instantiatedPoolObject;
     private void Awake()
     {
-        managerSO.GetHitParticleEvent += GetHitParticle;
-
-        for (int poolIndex = 0; poolIndex < hitParticlePoolSize; poolIndex++)
+        //Instantiation of object pools which is assigned by prefabs from the editor.
+        managerSO.PoolingGetEvent += GetPooledObject;
+        Debug.Log(poolingObjects.Count);
+        for (int objectIndex = 0; objectIndex < poolingObjects.Count; objectIndex++)
         {
-            instantiatedParticleObject = Instantiate(hitParticle, transform.position, Quaternion.identity);
-            instantiatedParticleObject.SetActive(false);
-            hitParticlePool.Add(instantiatedParticleObject);
+            instantiatedPoolObject = Instantiate(poolingComponentRef).GetComponent<ObjectPoolHandler>();
+            instantiatedPoolObject.InstatiatePool(poolingObjects[objectIndex], transform.position);
+            poolList.Insert(objectIndex, instantiatedPoolObject);
         }
 
     }
 
-    private void GetHitParticle(Vector3 hitPosition)
+    /// <summary>
+    /// Provides getting of the object with position and index from the pool
+    /// </summary>
+    /// <param name="hitPosition"></param>
+    /// <param name="objectIndex"></param>
+    private void GetPooledObject(Vector3 hitPosition, int objectIndex)
     {
-        if (activeHitParticleCount == hitParticlePoolSize)
-        {
-            GameObject dummyParticle = Instantiate(hitParticle, hitPosition, Quaternion.identity);
-            hitParticlePool.Add(dummyParticle);
-            ActivateParticle(dummyParticle, hitPosition);
-            hitParticlePoolSize++;
-        }
-
-        else
-        {
-            for (int poolIndex = 0; poolIndex < hitParticlePoolSize; poolIndex++)
-            {
-                if(!hitParticlePool[poolIndex].activeSelf)
-                {
-                    ActivateParticle(hitParticlePool[poolIndex], hitPosition);
-                    return;
-                }
-            }
-        }
-
-        activeHitParticleCount++;
-
+        poolList[objectIndex].GetObject(hitPosition);
     }
 
-    private void ActivateParticle(GameObject particle, Vector3 particlePositon)
-    {
-        particle.SetActive(true);
-        particle.transform.position = particlePositon;
-        StartCoroutine(DisableParticle(particle));
-    }
-
-    IEnumerator DisableParticle(GameObject activeParticle)
-    {
-        yield return new WaitForSeconds(managerSO.particleLifeSpan);
-        activeParticle.SetActive(false);
-        activeHitParticleCount -- ;
-    }
 }

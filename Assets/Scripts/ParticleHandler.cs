@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParticleHandler1 : MonoBehaviour
+public class ParticleHandler : MonoBehaviour
 {
     public ManagerSOScript managerSO;
 
@@ -11,7 +11,6 @@ public class ParticleHandler1 : MonoBehaviour
     // Start is called before the first frame update
     private void OnEnable()
     {
-        Debug.Log("Aloooooooooooooo");
         particle.Play();
 
     }

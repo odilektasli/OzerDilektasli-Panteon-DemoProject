@@ -11,13 +11,13 @@ public class ManagerSOScript : ScriptableObject
 
     public delegate void ObstacleHitDelegate();
     public delegate void CameraPositionUpdateDelegate(bool isInitializationFinished);
-    public delegate void ParticlePoolDelegate(Vector3 particleTransform);
-    public delegate void ParticleDelegate();
+    public delegate void PoolingDelegate(Vector3 objectTransform, int poolingObjectIndex);
+    public delegate void ParticlePoolDelegate();
 
     public event ObstacleHitDelegate ObstacleHitEvent;
     public event CameraPositionUpdateDelegate InitializeCameraPositionEvent;
-    public event ParticlePoolDelegate GetHitParticleEvent;
-    public event ParticleDelegate ParticlePlayEvent;
+    public event PoolingDelegate PoolingGetEvent;
+    public event ParticlePoolDelegate ParticlePlayEvent;
 
 
     public void HitByObstacle()
@@ -35,8 +35,8 @@ public class ManagerSOScript : ScriptableObject
         ParticlePlayEvent?.Invoke();
     }
 
-    public void GetHitParticle(Vector3 particleTransform)
+    public void GetPooledObject(Vector3 objectTransform, int poolingObjectIndex)
     {
-        GetHitParticleEvent?.Invoke(particleTransform);
+        PoolingGetEvent?.Invoke(objectTransform, poolingObjectIndex);
     }
 }

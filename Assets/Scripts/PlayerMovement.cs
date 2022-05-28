@@ -38,12 +38,12 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))//Here we take first position of mouse when clicked as world point
+        if (Input.GetMouseButtonDown(0) && canMove)//Here we take first position of mouse when clicked as world point
         {
             initialMousePositionX = GetWorldMousePositionX();
         }
 
-        if (Input.GetMouseButton(0))//After first click we look for if mouse is dragged on x axis. 
+        if (Input.GetMouseButton(0) && canMove)//After first click we look for if mouse is dragged on x axis. 
         {
             currentMousePositionX = GetWorldMousePositionX();
 
@@ -67,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
         {
 
             playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
-            Camera.main.transform.position = new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z - 10);
+            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z - 3), 2.0f * Time.deltaTime);
         }
 
     }
@@ -86,6 +86,7 @@ public class PlayerMovement : MonoBehaviour
     {
         playerRigidBody.velocity = new Vector3(0, 0, 0);
         playerAnim.SetBool("isFallState", true);
+        playerAnim.SetBool("isRunState", false);
         StartCoroutine(WaitFallAnimation());
 
 
@@ -96,19 +97,24 @@ public class PlayerMovement : MonoBehaviour
     IEnumerator WaitFallAnimation()
     {
         canMove = false;
+        playerRigidBody.detectCollisions = false;
         yield return new WaitForSeconds(1f);
 
+        managerSO.GetPooledObject(transform.position, 1);
         transform.position = new Vector3(0, 0, 0);
         managerSO.InitializeCameraPosition(true);
-        yield return new WaitForSeconds(2f);
         playerAnim.SetBool("isFallState", false);
+
+        yield return new WaitForSeconds(1.5f);
+        //managerSO.GetPooledObject(transform.position, 1);
+        
         playerAnim.SetBool("isRunState", true);
         managerSO.InitializeCameraPosition(false);
         canMove = true;
+        playerRigidBody.detectCollisions = true;
 
 
     }
-
     private void OnDisable()
     {
         managerSO.ObstacleHitEvent -= StaticObstacleHit;
