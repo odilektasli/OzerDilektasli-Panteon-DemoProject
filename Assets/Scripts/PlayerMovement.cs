@@ -4,10 +4,10 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     
+    public ManagerSOScript managerSO;
     public int dragMagnitude;
     public int platformXOffset;
     public float movementSpeed;
-    public ManagerSOScript managerSO;
 
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
@@ -26,6 +26,7 @@ public class PlayerMovement : MonoBehaviour
         initialCameraPosition = Camera.main.transform.position;
 
         managerSO.ObstacleHitEvent += StaticObstacleHit;
+        managerSO.CameraUpdateFinishedEvent += CameraUpdateFinished;
 
     }
     // Start is called before the first frame update
@@ -33,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         playerAnim.SetBool("isRunState", true);
+        managerSO.CameraTrackPlayerMode(true);
     }
 
     // Update is called once per frame
@@ -67,7 +69,7 @@ public class PlayerMovement : MonoBehaviour
         {
 
             playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
-            Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z - 3), 2.0f * Time.deltaTime);
+            
         }
 
     }
@@ -98,25 +100,26 @@ public class PlayerMovement : MonoBehaviour
     {
         canMove = false;
         playerRigidBody.detectCollisions = false;
+        managerSO.CameraTrackPlayerMode(false);
         yield return new WaitForSeconds(1f);
 
         managerSO.GetPooledObject(transform.position, 1);
+        managerSO.InitializeCameraPosition();
         transform.position = new Vector3(0, 0, 0);
-        managerSO.InitializeCameraPosition(true);
         playerAnim.SetBool("isFallState", false);
 
-        yield return new WaitForSeconds(1.5f);
-        //managerSO.GetPooledObject(transform.position, 1);
-        
+    }
+
+    private void CameraUpdateFinished()
+    {
         playerAnim.SetBool("isRunState", true);
-        managerSO.InitializeCameraPosition(false);
         canMove = true;
+        managerSO.CameraTrackPlayerMode(true);
         playerRigidBody.detectCollisions = true;
-
-
     }
     private void OnDisable()
     {
         managerSO.ObstacleHitEvent -= StaticObstacleHit;
+        managerSO.CameraUpdateFinishedEvent -= CameraUpdateFinished;
     }
 }
