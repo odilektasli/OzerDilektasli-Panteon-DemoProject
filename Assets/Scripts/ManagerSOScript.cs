@@ -37,7 +37,11 @@ public class ManagerSOScript : ScriptableObject
     {
         ParticlePlayEvent?.Invoke();
     }
-
+    /// <summary>
+    /// Get object from the pool by giving the transform of the object where you want spawn and object index from pool list in game manager.
+    /// </summary>
+    /// <param name="objectTransform"></param>
+    /// <param name="poolingObjectIndex"></param>
     public void GetPooledObject(Vector3 objectTransform, int poolingObjectIndex)
     {
         PoolingGetEvent?.Invoke(objectTransform, poolingObjectIndex);

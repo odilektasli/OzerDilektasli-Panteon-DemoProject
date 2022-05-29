@@ -12,6 +12,7 @@ public class CameraHandler : MonoBehaviour
 
     private bool isPoisitonInitialization;
     private bool trackPlayer;
+    private bool isParticlePlaced;
     private Vector3 initialPozition;
     // Start is called before the first frame update
 
@@ -31,6 +32,12 @@ public class CameraHandler : MonoBehaviour
         if(isPoisitonInitialization)
         {
             transform.position = Vector3.Lerp(transform.position, initialPozition, initializationSpeed * Time.deltaTime);
+        }
+
+        if(transform.position.z <= 0.1 && isPoisitonInitialization && !isParticlePlaced)
+        {
+            managerSO.GetPooledObject(playerRef.transform.position, 1);
+            isParticlePlaced = true;
         }
 
         if (transform.position.z - initialPozition.z <= 0.1f && isPoisitonInitialization)
@@ -53,6 +60,7 @@ public class CameraHandler : MonoBehaviour
     private void StartPositionInitialization()
     {
         isPoisitonInitialization = true;
+        isParticlePlaced = false;
         trackPlayer = false;
 
     }

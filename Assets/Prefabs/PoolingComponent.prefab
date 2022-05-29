@@ -44,3 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   poolSize: 2
+  managerSO: {fileID: 11400000, guid: a485dc263b1e1314b9f93ce5c1a4068f, type: 2}

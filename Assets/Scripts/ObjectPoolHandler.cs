@@ -5,6 +5,7 @@ using UnityEngine;
 public class ObjectPoolHandler : MonoBehaviour
 {
     public int poolSize;
+    public ManagerSOScript managerSO;
 
     private List<GameObject> pool = new List<GameObject>();
     private int activeObjectCount;
@@ -77,7 +78,7 @@ public class ObjectPoolHandler : MonoBehaviour
 
     IEnumerator DisableParticle(GameObject activeParticle)
     {
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(managerSO.particleLifeSpan);
         activeParticle.SetActive(false);
         activeObjectCount--;
     }

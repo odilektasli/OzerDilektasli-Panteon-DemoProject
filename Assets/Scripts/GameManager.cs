@@ -16,7 +16,6 @@ public class GameManager : MonoBehaviour
     {
         //Instantiation of object pools which is assigned by prefabs from the editor.
         managerSO.PoolingGetEvent += GetPooledObject;
-        Debug.Log(poolingObjects.Count);
         for (int objectIndex = 0; objectIndex < poolingObjects.Count; objectIndex++)
         {
             instantiatedPoolObject = Instantiate(poolingComponentRef).GetComponent<ObjectPoolHandler>();

@@ -17,7 +17,6 @@ public class ParticleHandler : MonoBehaviour
     private void Awake()
     {
         particle = GetComponent<ParticleSystem>();
-        Debug.Log(particle);
         
     }
     void Start()

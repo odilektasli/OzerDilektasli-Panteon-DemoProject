@@ -11,19 +11,21 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
-    private bool canMove = true;
-    private Vector3 initialCameraPosition;
+    public bool canMove, isCharacterRotating;
+    private float platformAngularVelocity;
+
     Vector3 mousePosition;
     float initialMousePositionX;
     float currentMousePositionX;
     float mouseDragDistance;
+    private int rotationDirection;
+    private Vector3 rotationAroundPosition;
 
 
     private void Awake()
     {
         playerAnim = GetComponent<Animator>();
         playerRigidBody = GetComponent<Rigidbody>();
-        initialCameraPosition = Camera.main.transform.position;
 
         managerSO.ObstacleHitEvent += StaticObstacleHit;
         managerSO.CameraUpdateFinishedEvent += CameraUpdateFinished;
@@ -45,7 +47,7 @@ public class PlayerMovement : MonoBehaviour
             initialMousePositionX = GetWorldMousePositionX();
         }
 
-        if (Input.GetMouseButton(0) && canMove)//After first click we look for if mouse is dragged on x axis. 
+        if (Input.GetMouseButton(0) && canMove && !isCharacterRotating)//After first click we look for if mouse is dragged on x axis. 
         {
             currentMousePositionX = GetWorldMousePositionX();
 
@@ -59,18 +61,35 @@ public class PlayerMovement : MonoBehaviour
 
         }
 
+        if (Input.GetMouseButton(0) && isCharacterRotating)//After first click we look for if mouse is dragged on x axis. 
+        {
+            currentMousePositionX = GetWorldMousePositionX();
+
+            mouseDragDistance = (currentMousePositionX - initialMousePositionX) * dragMagnitude; // To change location faster we need a multiplier.
+
+            if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
+            {
+                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 300f * Time.deltaTime);
+                initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
+            }
+
+        }
+
+        Debug.Log(playerRigidBody.position);
+
         //Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 10f), 2.0f * Time.deltaTime);
     }
 
     private void FixedUpdate()
     {
         //Setting of character velocity and camera positions.
-        if(canMove)
+        if (canMove)
         {
+            playerRigidBody.velocity = new Vector3(0,0 , movementSpeed);
 
-            playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
-            
         }
+
+        //transform.RotateAround(Vector3.forward, Vector3.forward, 20 * Time.deltaTime);
 
     }
 
@@ -108,6 +127,43 @@ public class PlayerMovement : MonoBehaviour
         transform.position = new Vector3(0, 0, 0);
         playerAnim.SetBool("isFallState", false);
 
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag == "RotatingPlatform")
+        {
+            platformAngularVelocity = other.attachedRigidbody.angularVelocity.z;
+            rotationAroundPosition = other.transform.position;
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.tag == "RotatingPlatform")
+        {
+           if(platformAngularVelocity > 0)
+           {
+                rotationDirection = 1;
+           }
+           else { rotationDirection = -1; }
+
+           if(!Input.GetMouseButtonDown(0))
+           transform.RotateAround(rotationAroundPosition, rotationDirection * Vector3.forward, 50f * Time.deltaTime);
+
+
+            //Quaternion q = Quaternion.AngleAxis(platformAngularVelocity, transform.forward);
+            //playerRigidBody.MovePosition(q * (playerRigidBody.transform.position - transform.position) + transform.position);
+            //playerRigidBody.MoveRotation(playerRigidBody.transform.rotation * q);
+
+            isCharacterRotating = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "RotatingPlatform")
+        {
+            isCharacterRotating = false;
+        }
     }
 
     private void CameraUpdateFinished()
