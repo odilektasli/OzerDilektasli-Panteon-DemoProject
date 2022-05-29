@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
 
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
-    public bool canMove, isCharacterRotating;
+    public bool canMove, isCharacterRotating, isRotatingPlatformFinished;
     private float platformAngularVelocity;
 
     Vector3 mousePosition;
@@ -21,6 +21,9 @@ public class PlayerMovement : MonoBehaviour
     private int rotationDirection;
     private Vector3 rotationAroundPosition;
 
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+
 
     private void Awake()
     {
@@ -29,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
 
         managerSO.ObstacleHitEvent += StaticObstacleHit;
         managerSO.CameraUpdateFinishedEvent += CameraUpdateFinished;
+
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
 
     }
     // Start is called before the first frame update
@@ -74,8 +80,6 @@ public class PlayerMovement : MonoBehaviour
             }
 
         }
-
-        Debug.Log(playerRigidBody.position);
 
         //Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 10f), 2.0f * Time.deltaTime);
     }
@@ -124,7 +128,7 @@ public class PlayerMovement : MonoBehaviour
 
         managerSO.GetPooledObject(transform.position, 1);
         managerSO.InitializeCameraPosition();
-        transform.position = new Vector3(0, 0, 0);
+        transform.position = initialPosition;
         playerAnim.SetBool("isFallState", false);
 
     }
@@ -134,6 +138,12 @@ public class PlayerMovement : MonoBehaviour
         {
             platformAngularVelocity = other.attachedRigidbody.angularVelocity.z;
             rotationAroundPosition = other.transform.position;
+        }
+
+        else if(other.gameObject.tag == "FlatPlatform" && isRotatingPlatformFinished)
+        {
+            transform.position = new Vector3(0, 0, transform.position.z);
+            transform.rotation = Quaternion.identity;
         }
     }
     private void OnTriggerStay(Collider other)
@@ -150,11 +160,16 @@ public class PlayerMovement : MonoBehaviour
            transform.RotateAround(rotationAroundPosition, rotationDirection * Vector3.forward, 50f * Time.deltaTime);
 
 
-            //Quaternion q = Quaternion.AngleAxis(platformAngularVelocity, transform.forward);
-            //playerRigidBody.MovePosition(q * (playerRigidBody.transform.position - transform.position) + transform.position);
-            //playerRigidBody.MoveRotation(playerRigidBody.transform.rotation * q);
-
             isCharacterRotating = true;
+
+            if (transform.rotation.z > 0.5 || transform.rotation.z < -0.5)
+            {
+                managerSO.GetPooledObject(transform.position, 1);
+                managerSO.InitializeCameraPosition();
+                transform.position = initialPosition;
+
+            }
+
         }
     }
 
@@ -163,7 +178,10 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.tag == "RotatingPlatform")
         {
             isCharacterRotating = false;
+            isRotatingPlatformFinished = true;
         }
+
+
     }
 
     private void CameraUpdateFinished()
