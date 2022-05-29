@@ -136,14 +136,15 @@ public class PlayerMovement : MonoBehaviour
     {
         if(other.gameObject.tag == "RotatingPlatform")
         {
+            movementSpeed = 2f;
             platformAngularVelocity = other.attachedRigidbody.angularVelocity.z;
             rotationAroundPosition = other.transform.position;
         }
 
-        else if(other.gameObject.tag == "FlatPlatform" && isRotatingPlatformFinished)
+        else if(other.gameObject.tag == "RotatingPlatformArea")
         {
-            transform.position = new Vector3(0, 0, transform.position.z);
-            transform.rotation = Quaternion.identity;
+            transform.position = Vector3.Lerp(transform.position, new Vector3(initialPosition.x, initialPosition.y, transform.position.z), 100f);
+            
         }
     }
     private void OnTriggerStay(Collider other)
@@ -159,7 +160,6 @@ public class PlayerMovement : MonoBehaviour
            if(!Input.GetMouseButtonDown(0))
            transform.RotateAround(rotationAroundPosition, rotationDirection * Vector3.forward, 50f * Time.deltaTime);
 
-
             isCharacterRotating = true;
 
             if (transform.rotation.z > 0.5 || transform.rotation.z < -0.5)
@@ -167,6 +167,7 @@ public class PlayerMovement : MonoBehaviour
                 managerSO.GetPooledObject(transform.position, 1);
                 managerSO.InitializeCameraPosition();
                 transform.position = initialPosition;
+                isRotatingPlatformFinished = true;
 
             }
 
@@ -177,11 +178,18 @@ public class PlayerMovement : MonoBehaviour
     {
         if (other.gameObject.tag == "RotatingPlatform")
         {
+
             isCharacterRotating = false;
             isRotatingPlatformFinished = true;
         }
 
-
+        if(other.gameObject.tag == "RotatingPlatformArea")
+        {
+            movementSpeed = 5f;
+            transform.position = new Vector3(0, 0, transform.position.z);
+            transform.rotation = initialRotation;
+            isRotatingPlatformFinished = false;
+        }
     }
 
     private void CameraUpdateFinished()

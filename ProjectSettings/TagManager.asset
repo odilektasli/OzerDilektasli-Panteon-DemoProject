@@ -7,6 +7,7 @@ TagManager:
   - Character
   - RotatingPlatform
   - FlatPlatform
+  - RotatingPlatformArea
   layers:
   - Default
   - TransparentFX
