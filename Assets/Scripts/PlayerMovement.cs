@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
             {
-                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 300f * Time.deltaTime);
+                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 100f * Time.deltaTime);
                 initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
             }
 
