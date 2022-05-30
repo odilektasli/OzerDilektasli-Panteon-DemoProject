@@ -13,17 +13,23 @@ public class CameraHandler : MonoBehaviour
     private bool isPoisitonInitialization;
     private bool trackPlayer;
     private bool isParticlePlaced;
-    private Vector3 initialPozition;
+    private bool isGoToPosition;
+    private bool isRotationLerp;
+    private Vector3 initialPosition;
+    private Quaternion initialRotation;
+    private Vector3 lerpPosition;
     // Start is called before the first frame update
 
     private void Awake()
     {
         managerSO.InitializeCameraPositionEvent += StartPositionInitialization;
         managerSO.TrackPlayerEvent += ActivatePlayerTracking;
+        managerSO.LerpToPositionEvent += GoToPosition;
     }
     void Start()
     {
-        initialPozition = transform.position;
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
     }
 
     // Update is called once per frame
@@ -31,7 +37,7 @@ public class CameraHandler : MonoBehaviour
     {
         if(isPoisitonInitialization)
         {
-            transform.position = Vector3.Lerp(transform.position, initialPozition, initializationSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, initialPosition, initializationSpeed * Time.deltaTime);
         }
 
         if(transform.position.z <= 0.1 && isPoisitonInitialization && !isParticlePlaced)
@@ -40,12 +46,20 @@ public class CameraHandler : MonoBehaviour
             isParticlePlaced = true;
         }
 
-        if (transform.position.z - initialPozition.z <= 0.1f && isPoisitonInitialization)
+        if (transform.position.z - initialPosition.z <= 0.1f && isPoisitonInitialization)
         {
             isPoisitonInitialization = false;
             managerSO.CameraUpdateFinished();
         }
-        
+
+        if(isGoToPosition)
+        {
+            transform.position = Vector3.Lerp(transform.position, lerpPosition, initializationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.identity, initializationSpeed * Time.deltaTime);
+
+        }
+
+
     }
 
     private void FixedUpdate()
@@ -71,9 +85,18 @@ public class CameraHandler : MonoBehaviour
         else { trackPlayer = false; }
     }
 
+    private void GoToPosition(Vector3 position)
+    {
+        Debug.Log(position);
+        trackPlayer = false;
+        lerpPosition = position;
+        isGoToPosition = true;
+    }
+
     private void OnDisable()
     {
         managerSO.InitializeCameraPositionEvent -= StartPositionInitialization;
         managerSO.TrackPlayerEvent -= ActivatePlayerTracking;
+        managerSO.LerpToPositionEvent -= GoToPosition;
     }
 }

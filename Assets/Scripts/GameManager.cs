@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
     
     public ManagerSOScript managerSO;
     public GameObject poolingComponentRef;
+    public GameObject paintingWallComponentRef;
 
     public List<GameObject> poolingObjects;
     public List<ObjectPoolHandler> poolList = new List<ObjectPoolHandler>();
@@ -16,6 +17,8 @@ public class GameManager : MonoBehaviour
     {
         //Instantiation of object pools which is assigned by prefabs from the editor.
         managerSO.PoolingGetEvent += GetPooledObject;
+        managerSO.PaintingWallActivationEvent += ActivatePaintingWall;
+
         for (int objectIndex = 0; objectIndex < poolingObjects.Count; objectIndex++)
         {
             instantiatedPoolObject = Instantiate(poolingComponentRef).GetComponent<ObjectPoolHandler>();
@@ -35,4 +38,10 @@ public class GameManager : MonoBehaviour
         poolList[objectIndex].GetObject(hitPosition);
     }
 
+    private void ActivatePaintingWall()
+    {
+
+        paintingWallComponentRef.SetActive(true);
+        managerSO.LerpToPosition(paintingWallComponentRef.transform.position);
+    }
 }

@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
 
             if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
             {
-                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 100f * Time.deltaTime);
+                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 200f * Time.deltaTime);
                 initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
             }
 
@@ -145,6 +145,12 @@ public class PlayerMovement : MonoBehaviour
         {
             transform.position = Vector3.Lerp(transform.position, new Vector3(initialPosition.x, initialPosition.y, transform.position.z), 100f);
             
+        }
+
+        else if(other.gameObject.tag == "FinishArea")
+        {
+            canMove = false;
+            managerSO.ActivatePaintingWall();
         }
     }
     private void OnTriggerStay(Collider other)

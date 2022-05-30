@@ -12,15 +12,21 @@ public class ManagerSOScript : ScriptableObject
     public delegate void ObstacleHitDelegate();
     public delegate void CameraPositionUpdateDelegate();
     public delegate void CameraTrackModeDelegate(bool isTracking);
+    public delegate void LerpToPositionDelegate(Vector3 lerPosition);
     public delegate void PoolingDelegate(Vector3 objectTransform, int poolingObjectIndex);
     public delegate void ParticlePoolDelegate();
+    public delegate void PaintingWallDelegate();
+    public delegate void GUINumberUpdateDelegate(int updateNumber);
 
     public event ObstacleHitDelegate ObstacleHitEvent;
     public event CameraPositionUpdateDelegate InitializeCameraPositionEvent;
     public event CameraPositionUpdateDelegate CameraUpdateFinishedEvent;
     public event CameraTrackModeDelegate TrackPlayerEvent;
+    public event LerpToPositionDelegate LerpToPositionEvent;
     public event PoolingDelegate PoolingGetEvent;
     public event ParticlePoolDelegate ParticlePlayEvent;
+    public event PaintingWallDelegate PaintingWallActivationEvent;
+    public event GUINumberUpdateDelegate UpdatePaintingPercantageEvent;
 
 
     public void HitByObstacle()
@@ -55,5 +61,20 @@ public class ManagerSOScript : ScriptableObject
     public void CameraTrackPlayerMode(bool isTracking)
     {
         TrackPlayerEvent?.Invoke(isTracking);
+    }
+
+    public void ActivatePaintingWall()
+    {
+        PaintingWallActivationEvent?.Invoke();
+    }
+
+    public void LerpToPosition(Vector3 lerpPosition)
+    {
+        LerpToPositionEvent?.Invoke(lerpPosition);
+    }
+
+    public void UpdatePaintingPercentage(int updateNum)
+    {
+        UpdatePaintingPercantageEvent?.Invoke(updateNum);
     }
 }
