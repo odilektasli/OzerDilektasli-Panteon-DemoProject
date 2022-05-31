@@ -46,7 +46,7 @@ public class DonutMovingStickHandler : MonoBehaviour
         if (!isLerping)
         {
             isEndPoint = !isEndPoint;
-            if(isEndPoint)
+            if (isEndPoint)
             {
                 randomXOffset = endOffsetX;
             }

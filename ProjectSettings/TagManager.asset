@@ -9,6 +9,8 @@ TagManager:
   - FlatPlatform
   - RotatingPlatformArea
   - FinishArea
+  - OpponentCharacter
+  - HorizontalObstacle
   layers:
   - Default
   - TransparentFX

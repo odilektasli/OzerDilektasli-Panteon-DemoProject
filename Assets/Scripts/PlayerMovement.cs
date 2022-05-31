@@ -93,7 +93,6 @@ public class PlayerMovement : MonoBehaviour
 
         }
 
-        //transform.RotateAround(Vector3.forward, Vector3.forward, 20 * Time.deltaTime);
 
     }
 

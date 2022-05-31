@@ -13,7 +13,7 @@ public class OpponentCharacterHandler : MonoBehaviour
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
     public GameObject targetArea;
-    public bool canMove, isCharacterRotating, isRotatingPlatformFinished;
+    public bool canMove, isRotationFix, isRotatingPlatformFinished, isLerpEnabled, isRotatingPlatformArea;
     private float platformAngularVelocity;
 
     Vector3 mousePosition;
@@ -26,6 +26,10 @@ public class OpponentCharacterHandler : MonoBehaviour
     private Vector3 initialPosition;
     private Quaternion initialRotation;
     private NavMeshAgent navMeshRef;
+    NavMeshPath path;
+    LineRenderer lineRenderer;
+
+    private float lerpPositionX;
 
 
     private RaycastHit raycastHit;
@@ -37,93 +41,120 @@ public class OpponentCharacterHandler : MonoBehaviour
         playerAnim = GetComponent<Animator>();
         playerRigidBody = GetComponent<Rigidbody>();
         navMeshRef = GetComponent<NavMeshAgent>();
-        managerSO.ObstacleHitEvent += StaticObstacleHit;
-        managerSO.CameraUpdateFinishedEvent += CameraUpdateFinished;
 
         initialPosition = transform.position;
         initialRotation = transform.rotation;
+        movementSpeed = navMeshRef.speed;
+
+        Debug.Log(navMeshRef.velocity);
+
 
     }
     // Start is called before the first frame update
 
     void Start()
     {
+        canMove = true;
         playerAnim.SetBool("isRunState", true);
-        managerSO.CameraTrackPlayerMode(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && canMove)//Here we take first position of mouse when clicked as world point
+        if (!isLerpEnabled && canMove && !isRotatingPlatformArea)
         {
-            initialMousePositionX = GetWorldMousePositionX();
+            navMeshRef.destination = targetArea.transform.position;
+            Debug.Log("yirmahagideyrum");
+        }
+        Debug.Log(canMove);
+        if (isLerpEnabled)
+        {
+            transform.position = Vector3.Lerp(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z), Time.deltaTime * 8f);
+
         }
 
-        if (Input.GetMouseButton(0) && canMove && !isCharacterRotating)//After first click we look for if mouse is dragged on x axis. 
+        if (isLerpEnabled && Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)) < 0.5f || Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)) < -0.5f)
         {
-            currentMousePositionX = GetWorldMousePositionX();
 
-            mouseDragDistance = (currentMousePositionX - initialMousePositionX) * dragMagnitude; // To change location faster we need a multiplier.
+            isLerpEnabled = false;
+        }
 
-            if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
+        if(isRotatingPlatformArea)
+        {
+            if(transform.rotation.z > 0.3 || transform.rotation.z < -0.3)
             {
-                transform.position = new Vector3(Mathf.Clamp(transform.position.x + mouseDragDistance, managerSO.platformXOffset * -1, managerSO.platformXOffset), transform.position.y, transform.position.z);
-                initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
+                isRotationFix = true;
             }
 
-        }
-
-        if (Input.GetMouseButton(0) && isCharacterRotating)//After first click we look for if mouse is dragged on x axis. 
-        {
-            currentMousePositionX = GetWorldMousePositionX();
-
-            mouseDragDistance = (currentMousePositionX - initialMousePositionX) * dragMagnitude; // To change location faster we need a multiplier.
-
-            if (mouseDragDistance != 0)//If there is difference between after first click and current position of mouse we change the location of character on x axis.
+            else
             {
-                transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 200f * Time.deltaTime);
-                initialMousePositionX = currentMousePositionX; //When character location is changed that means inital position is now current position
+                isRotationFix = false;
             }
+        }
+
+        if (isRotationFix)
+        {
+            transform.RotateAround(rotationAroundPosition, rotationDirection * -1 * Vector3.forward, 300f * Time.deltaTime);
+
 
         }
-        navMeshRef.destination = targetArea.transform.position;
-        Debug.Log(navMeshRef.destination);
-        //Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, 10f), 2.0f * Time.deltaTime);
+        
+
     }
 
     private void FixedUpdate()
     {
         //Setting of character velocity and camera positions.
-        if (canMove)
+
+        if (!isRotatingPlatformArea)
+        {
+            ray = new Ray(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward);
+            Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.red);
+
+            Debug.DrawRay(transform.position, Vector3.forward);
+            //Debug.DrawWireCube(transform.position + transform.forward * rayCastRange, transform.lossyScale);
+            if (Physics.BoxCast(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.lossyScale, Vector3.forward * rayCastRange, out raycastHit, transform.rotation, rayCastRange) && !isLerpEnabled)
+            {
+                Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.yellow);
+                //Debug.Log(raycastHit.collider.transform.position);
+                //Debug.Log(raycastHit.collider.bounds.extents.x);
+                if (raycastHit.collider.name.Contains("Horizontal"))
+                {
+                    Debug.Log("gorduuuuuuuuuum");
+
+                    if (platformXOffset - raycastHit.collider.transform.position.x < raycastHit.collider.transform.position.x - (platformXOffset * -1))
+                    {
+                        lerpPositionX = platformXOffset;
+                    }
+
+                    else
+                    {
+                        lerpPositionX = platformXOffset * -1;
+                    }
+
+                    isLerpEnabled = true;
+                }
+            }
+
+
+        }
+
+        else if(!navMeshRef.isActiveAndEnabled)
         {
             playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
 
         }
-        ray = new Ray(transform.position, Vector3.forward);
-        //Debug.DrawRay(transform.position, Vector3.forward)
-        if(Physics.Raycast(ray, out raycastHit, rayCastRange))
-        {
-            //Debug.Log(raycastHit.collider.name);
-        }
 
-        //transform.RotateAround(Vector3.forward, Vector3.forward, 20 * Time.deltaTime);
+
+
 
     }
 
-    /// <summary>
-    /// Provides to convert mouse screen position, and returns mouse world mouse position of x
-    /// </summary>
-    private float GetWorldMousePositionX()
-    {
-        mousePosition = Input.mousePosition;
-        mousePosition.z = Camera.main.nearClipPlane;
-        return Camera.main.ScreenToWorldPoint(mousePosition).x;
-    }
 
     private void StaticObstacleHit()
     {
-        playerRigidBody.velocity = new Vector3(0, 0, 0);
+        navMeshRef.speed = 0;
+        canMove = false;
         playerAnim.SetBool("isFallState", true);
         playerAnim.SetBool("isRunState", false);
         StartCoroutine(WaitFallAnimation());
@@ -135,17 +166,19 @@ public class OpponentCharacterHandler : MonoBehaviour
 
     IEnumerator WaitFallAnimation()
     {
-        canMove = false;
         playerRigidBody.detectCollisions = false;
         managerSO.CameraTrackPlayerMode(false);
         yield return new WaitForSeconds(1f);
 
         managerSO.GetPooledObject(transform.position, 1);
-        managerSO.InitializeCameraPosition();
         transform.position = initialPosition;
         playerAnim.SetBool("isFallState", false);
+        playerAnim.SetBool("isRunState", true);
+        navMeshRef.speed = movementSpeed;
+        canMove = true;
 
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "RotatingPlatform")
@@ -153,18 +186,29 @@ public class OpponentCharacterHandler : MonoBehaviour
             movementSpeed = 2f;
             platformAngularVelocity = other.attachedRigidbody.angularVelocity.z;
             rotationAroundPosition = other.transform.position;
+            //StartCoroutine(FixRotation());
+
         }
 
         else if (other.gameObject.tag == "RotatingPlatformArea")
         {
+            navMeshRef.enabled = false;
+            isRotatingPlatformArea = true;
             transform.position = Vector3.Lerp(transform.position, new Vector3(initialPosition.x, initialPosition.y, transform.position.z), 100f);
-
+            canMove = false;
         }
 
         else if (other.gameObject.tag == "FinishArea")
         {
             canMove = false;
-            managerSO.ActivatePaintingWall();
+            //managerSO.ActivatePaintingWall();
+        }
+
+        else if(other.gameObject.tag == "HorizontalObstacle")
+        {
+            managerSO.GetPooledObject(transform.position, 0);
+      
+            StaticObstacleHit();
         }
     }
     private void OnTriggerStay(Collider other)
@@ -177,15 +221,13 @@ public class OpponentCharacterHandler : MonoBehaviour
             }
             else { rotationDirection = -1; }
 
-            if (!Input.GetMouseButtonDown(0))
-                transform.RotateAround(rotationAroundPosition, rotationDirection * Vector3.forward, 50f * Time.deltaTime);
+            if (!isRotationFix)
+            transform.RotateAround(rotationAroundPosition, rotationDirection * Vector3.forward, 10f * Time.deltaTime);
 
-            isCharacterRotating = true;
 
             if (transform.rotation.z > 0.5 || transform.rotation.z < -0.5)
             {
                 managerSO.GetPooledObject(transform.position, 1);
-                managerSO.InitializeCameraPosition();
                 transform.position = initialPosition;
                 isRotatingPlatformFinished = true;
 
@@ -199,7 +241,7 @@ public class OpponentCharacterHandler : MonoBehaviour
         if (other.gameObject.tag == "RotatingPlatform")
         {
 
-            isCharacterRotating = false;
+            isRotationFix = false;
             isRotatingPlatformFinished = true;
         }
 
@@ -209,6 +251,9 @@ public class OpponentCharacterHandler : MonoBehaviour
             transform.position = new Vector3(0, 0, transform.position.z);
             transform.rotation = initialRotation;
             isRotatingPlatformFinished = false;
+            canMove = true;
+            navMeshRef.enabled = true;
+            isRotatingPlatformArea = false;
         }
     }
 
@@ -221,7 +266,5 @@ public class OpponentCharacterHandler : MonoBehaviour
     }
     private void OnDisable()
     {
-        managerSO.ObstacleHitEvent -= StaticObstacleHit;
-        managerSO.CameraUpdateFinishedEvent -= CameraUpdateFinished;
     }
 }

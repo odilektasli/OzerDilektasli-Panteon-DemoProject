@@ -69,5 +69,6 @@ public class HorizontalObstacleHandler : MonoBehaviour
             managerSO.GetPooledObject(new Vector3(transform.position.x, transform.position.y, transform.position.z - 0.5f), 0);
 
         }
+
     }
 }

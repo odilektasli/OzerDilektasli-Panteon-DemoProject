@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8372847007653781080}
   - component: {fileID: 7144467398484006666}
   - component: {fileID: 7144467398484006667}
+  - component: {fileID: 338509575}
   m_Layer: 0
   m_Name: StaticObstacle
   m_TagString: Untagged
@@ -91,10 +92,10 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8012659712393412493}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.12875415, y: 0.089122504, z: 0.041758485}
+  m_Size: {x: 0.12875415, y: 0.089122504, z: 0.05}
   m_Center: {x: 0, y: -0.0000000018626451, z: 0}
 --- !u!114 &7144467398484006667
 MonoBehaviour:
@@ -109,4 +110,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   managerSO: {fileID: 11400000, guid: a485dc263b1e1314b9f93ce5c1a4068f, type: 2}
-  dustParticleObject: {fileID: 187952, guid: c05e92eaee7a00844867e5edc8e0dde1, type: 3}
+--- !u!208 &338509575
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8012659712393412493}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.095, y: 0.045, z: 0.05}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
