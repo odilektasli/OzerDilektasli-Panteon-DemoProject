@@ -143,7 +143,6 @@ public class OpponentCharacterHandler : MonoBehaviour
 
         else if(isRotatingPlatformArea)
         {
-            Debug.Log("Gedlin Mİ kuzenimiadi");
             playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
 
         }
