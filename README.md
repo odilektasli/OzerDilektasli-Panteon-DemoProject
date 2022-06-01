@@ -1,4 +1,4 @@
-# Platform Runner game for 'Panton' developed by Özer DİLEKTAŞLI 
+# Platform Runner game for 'Panteon' developed by Özer DİLEKTAŞLI 
 
 The windows build can be find in the ProjectBuild folder.
 
