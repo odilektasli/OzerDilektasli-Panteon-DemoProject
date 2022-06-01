@@ -16,11 +16,8 @@ public class RotationStickHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag != "PlayerCharacter")
-        {
-            characterRb = other.attachedRigidbody;
-            hitCollider = other;
-        }
+        characterRb = other.attachedRigidbody;
+        hitCollider = other;
 
 
         Debug.Log(rotatorRigidBody.name);
@@ -30,13 +27,13 @@ public class RotationStickHandler : MonoBehaviour
     {
         rotatorRigidBody.angularVelocity = new Vector3(0, Time.deltaTime * 100f, 0);
 
-        if (characterRb)
-        {
-            Vector3 forceDirection = transform.position - hitCollider.transform.position;
-            forceDirection.y = 0;
-            forceDirection.Normalize();
+        //if (characterRb)
+        //{
+        //    Vector3 forceDirection = transform.position - hitCollider.transform.position;
+        //    forceDirection.y = 0;
+        //    forceDirection.Normalize();
 
-            characterRb.AddForceAtPosition(forceDirection * 5f, hitCollider.transform.position, ForceMode.Impulse);
-        }
+        //    characterRb.AddForceAtPosition(forceDirection * 5f, hitCollider.transform.position, ForceMode.Impulse);
+        //}
     }
 }

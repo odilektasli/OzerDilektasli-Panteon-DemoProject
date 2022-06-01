@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour
     private List<GameObject> characterRankingArray = new List<GameObject>();
     private int playerRanking;
 
+    private bool isGameStopped;
+
     private GameObject dummyArrayElement;
     private void Awake()
     {
@@ -46,7 +48,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator CheckPlayerRanking()
     {
-        while(true)
+        while(!isGameStopped)
         {
             yield return new WaitForSeconds(0.01f);
 
@@ -90,7 +92,7 @@ public class GameManager : MonoBehaviour
 
     private void ActivatePaintingWall()
     {
-
+        isGameStopped = true;
         paintingWallComponentRef.SetActive(true);
         managerSO.LerpToPosition(paintingWallComponentRef.transform.position);
     }

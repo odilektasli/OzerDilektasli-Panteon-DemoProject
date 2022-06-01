@@ -34,18 +34,18 @@ public class OpponentCharacterHandler : MonoBehaviour
 
     private RaycastHit raycastHit;
     private Ray ray;
+    private bool isReached;
     public int rayCastRange;
 
     private void Awake()
     {
-
         playerAnim = GetComponent<Animator>();
         playerRigidBody = GetComponent<Rigidbody>();
         navMeshRef = GetComponent<NavMeshAgent>();
-        movementSpeed = navMeshRef.speed;
 
         initialPosition = transform.position;
         initialRotation = transform.rotation;
+        movementSpeed = navMeshRef.speed;
 
 
     }
@@ -53,7 +53,6 @@ public class OpponentCharacterHandler : MonoBehaviour
 
     void Start()
     {
-
         canMove = true;
         playerAnim.SetBool("isRunState", true);
 
@@ -65,7 +64,6 @@ public class OpponentCharacterHandler : MonoBehaviour
     {
         if (!isLerpEnabled && canMove && !isRotatingPlatformArea)
         {
-            Debug.Log("aloo?");
             navMeshRef.destination = targetArea.transform.position;
         }
 
@@ -103,6 +101,7 @@ public class OpponentCharacterHandler : MonoBehaviour
 
 
         }
+       
 
         //Debug.Log(Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)));
     }
@@ -111,35 +110,32 @@ public class OpponentCharacterHandler : MonoBehaviour
     {
         //Setting of character velocity and camera positions.
 
-        if (!isRotatingPlatformArea)
+        if (!isRotatingPlatformArea && !isReached)
         {
-            //ray = new Ray(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward);
-            //Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.red);
+            ray = new Ray(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward);
+            Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.red);
 
-            //Debug.DrawRay(transform.position, Vector3.forward);
+            Debug.DrawRay(transform.position, Vector3.forward);
             //Debug.DrawWireCube(transform.position + transform.forward * rayCastRange, transform.lossyScale);
-            //if (Physics.BoxCast(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.lossyScale, Vector3.forward * rayCastRange, out raycastHit, transform.rotation, rayCastRange) && !isLerpEnabled)
-            //{
-            //    Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.yellow);
-            //    Debug.Log(raycastHit.collider.transform.position);
-            //    Debug.Log(raycastHit.collider.bounds.extents.x);
-            //    if (raycastHit.collider.name.Contains("Horizontal"))
-            //    {
-            //        Debug.Log("gorduuuuuuuuuum");
+            if (Physics.BoxCast(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.lossyScale, Vector3.forward * rayCastRange, out raycastHit, transform.rotation, rayCastRange) && !isLerpEnabled)
+            {
+                Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.yellow);
+                if (raycastHit.collider.name.Contains("Horizontal"))
+                {
 
-            //        if (platformXOffset - raycastHit.collider.transform.position.x < raycastHit.collider.transform.position.x - (platformXOffset * -1))
-            //        {
-            //            lerpPositionX = platformXOffset;
-            //        }
+                    if (platformXOffset - raycastHit.collider.transform.position.x < raycastHit.collider.transform.position.x - (platformXOffset * -1))
+                    {
+                        lerpPositionX = platformXOffset;
+                    }
 
-            //        else
-            //        {
-            //            lerpPositionX = platformXOffset * -1;
-            //        }
+                    else
+                    {
+                        lerpPositionX = platformXOffset * -1;
+                    }
 
-            //        isLerpEnabled = true;
-            //    }
-            //}
+                    isLerpEnabled = true;
+                }
+            }
 
 
         }
@@ -166,6 +162,7 @@ public class OpponentCharacterHandler : MonoBehaviour
 
 
         //transform.position = new Vector3(0, 0, 0);
+        //Camera.main.transform.position = initialCameraPosition;
     }
 
     IEnumerator WaitFallAnimation()
@@ -204,8 +201,12 @@ public class OpponentCharacterHandler : MonoBehaviour
 
         else if (other.gameObject.tag == "FinishArea")
         {
+            navMeshRef.enabled = false;
+            playerAnim.SetBool("isRunState", false);
+            playerAnim.SetBool("isIdle", true);
+            transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z + 5f);
+            isReached = true;
             canMove = false;
-            //managerSO.ActivatePaintingWall();
         }
 
         else if(other.gameObject.tag == "HorizontalObstacle")
@@ -214,6 +215,7 @@ public class OpponentCharacterHandler : MonoBehaviour
       
             StaticObstacleHit();
         }
+
     }
     private void OnTriggerStay(Collider other)
     {
