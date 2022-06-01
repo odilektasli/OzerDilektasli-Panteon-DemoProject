@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,7 +12,12 @@ public class GameManager : MonoBehaviour
 
     public List<GameObject> poolingObjects;
     public List<ObjectPoolHandler> poolList = new List<ObjectPoolHandler>();
+    public GameObject[] opponentCharacters;
+    public GameObject playerRef;
     private ObjectPoolHandler instantiatedPoolObject;
+    private List<GameObject> characterRankingArray = new List<GameObject>();
+
+    private GameObject dummyArrayElement;
     private void Awake()
     {
         //Instantiation of object pools which is assigned by prefabs from the editor.
@@ -26,6 +31,46 @@ public class GameManager : MonoBehaviour
             poolList.Insert(objectIndex, instantiatedPoolObject);
         }
 
+    }
+
+    private void Start()
+    {
+        for(int arrayIndex = 0; arrayIndex < opponentCharacters.Length ; arrayIndex++)
+        {
+            characterRankingArray.Add(opponentCharacters[arrayIndex]);
+        }
+        characterRankingArray.Add(playerRef);
+        StartCoroutine(CheckPlayerRanking());
+    }
+
+    IEnumerator CheckPlayerRanking()
+    {
+        while(true)
+        {
+            yield return new WaitForSeconds(0.01f);
+
+            for (int iterationCount = 0; iterationCount < characterRankingArray.Count - 1; iterationCount++)
+            {
+                for (int arrayIndex = 0; arrayIndex < characterRankingArray.Count - 1; arrayIndex++)
+                {
+                    if (characterRankingArray[arrayIndex].transform.position.z < characterRankingArray[arrayIndex + 1].transform.position.z)
+                    {
+                        //Debug.Log(characterRankingArray[arrayIndex].transform.position.z);
+                        dummyArrayElement = characterRankingArray[arrayIndex];
+                        characterRankingArray[arrayIndex] = characterRankingArray[arrayIndex + 1];
+                        characterRankingArray[arrayIndex + 1] = dummyArrayElement;
+
+                    }
+                }
+            }
+            Debug.Log("PlayerRanking" + (characterRankingArray.IndexOf(playerRef) + 1));
+
+        }
+    }
+
+    private void Update()
+    {
+        
     }
 
     /// <summary>

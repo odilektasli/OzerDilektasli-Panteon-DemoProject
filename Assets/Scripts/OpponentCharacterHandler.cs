@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -13,7 +13,7 @@ public class OpponentCharacterHandler : MonoBehaviour
     private Animator playerAnim;
     private Rigidbody playerRigidBody;
     public GameObject targetArea;
-    public bool canMove, isRotationFix, isRotatingPlatformFinished, isLerpEnabled, isRotatingPlatformArea;
+    public bool canMove, isRotationFix, isRotatingPlatformFinished, isLerpEnabled, isRotationLepEnabled, isRotatingPlatformArea;
     private float platformAngularVelocity;
 
     Vector3 mousePosition;
@@ -46,8 +46,6 @@ public class OpponentCharacterHandler : MonoBehaviour
         initialRotation = transform.rotation;
         movementSpeed = navMeshRef.speed;
 
-        Debug.Log(navMeshRef.velocity);
-
 
     }
     // Start is called before the first frame update
@@ -56,6 +54,8 @@ public class OpponentCharacterHandler : MonoBehaviour
     {
         canMove = true;
         playerAnim.SetBool("isRunState", true);
+
+        path = new NavMeshPath();
     }
 
     // Update is called once per frame
@@ -64,24 +64,26 @@ public class OpponentCharacterHandler : MonoBehaviour
         if (!isLerpEnabled && canMove && !isRotatingPlatformArea)
         {
             navMeshRef.destination = targetArea.transform.position;
-            Debug.Log("yirmahagideyrum");
         }
-        Debug.Log(canMove);
+
         if (isLerpEnabled)
         {
             transform.position = Vector3.Lerp(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z), Time.deltaTime * 8f);
 
+
         }
+
 
         if (isLerpEnabled && Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)) < 0.5f || Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)) < -0.5f)
         {
-
             isLerpEnabled = false;
         }
 
         if(isRotatingPlatformArea)
         {
-            if(transform.rotation.z > 0.3 || transform.rotation.z < -0.3)
+            navMeshRef.Warp(transform.position);
+
+            if (transform.rotation.z > 0.3 || transform.rotation.z < -0.3)
             {
                 isRotationFix = true;
             }
@@ -98,8 +100,8 @@ public class OpponentCharacterHandler : MonoBehaviour
 
 
         }
-        
 
+        //Debug.Log(Vector3.Distance(transform.position, new Vector3(lerpPositionX, transform.position.y, transform.position.z)));
     }
 
     private void FixedUpdate()
@@ -108,39 +110,40 @@ public class OpponentCharacterHandler : MonoBehaviour
 
         if (!isRotatingPlatformArea)
         {
-            ray = new Ray(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward);
-            Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.red);
+            //ray = new Ray(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward);
+            //Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.red);
 
-            Debug.DrawRay(transform.position, Vector3.forward);
+            //Debug.DrawRay(transform.position, Vector3.forward);
             //Debug.DrawWireCube(transform.position + transform.forward * rayCastRange, transform.lossyScale);
-            if (Physics.BoxCast(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.lossyScale, Vector3.forward * rayCastRange, out raycastHit, transform.rotation, rayCastRange) && !isLerpEnabled)
-            {
-                Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.yellow);
-                //Debug.Log(raycastHit.collider.transform.position);
-                //Debug.Log(raycastHit.collider.bounds.extents.x);
-                if (raycastHit.collider.name.Contains("Horizontal"))
-                {
-                    Debug.Log("gorduuuuuuuuuum");
+            //if (Physics.BoxCast(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), transform.lossyScale, Vector3.forward * rayCastRange, out raycastHit, transform.rotation, rayCastRange) && !isLerpEnabled)
+            //{
+            //    Debug.DrawRay(new Vector3(transform.position.x, transform.position.y + 1f, transform.position.z), Vector3.forward * rayCastRange, Color.yellow);
+            //    Debug.Log(raycastHit.collider.transform.position);
+            //    Debug.Log(raycastHit.collider.bounds.extents.x);
+            //    if (raycastHit.collider.name.Contains("Horizontal"))
+            //    {
+            //        Debug.Log("gorduuuuuuuuuum");
 
-                    if (platformXOffset - raycastHit.collider.transform.position.x < raycastHit.collider.transform.position.x - (platformXOffset * -1))
-                    {
-                        lerpPositionX = platformXOffset;
-                    }
+            //        if (platformXOffset - raycastHit.collider.transform.position.x < raycastHit.collider.transform.position.x - (platformXOffset * -1))
+            //        {
+            //            lerpPositionX = platformXOffset;
+            //        }
 
-                    else
-                    {
-                        lerpPositionX = platformXOffset * -1;
-                    }
+            //        else
+            //        {
+            //            lerpPositionX = platformXOffset * -1;
+            //        }
 
-                    isLerpEnabled = true;
-                }
-            }
+            //        isLerpEnabled = true;
+            //    }
+            //}
 
 
         }
 
-        else if(!navMeshRef.isActiveAndEnabled)
+        else if(isRotatingPlatformArea)
         {
+            Debug.Log("Gedlin Mİ kuzenimiadi");
             playerRigidBody.velocity = new Vector3(0, 0, movementSpeed);
 
         }
@@ -192,10 +195,11 @@ public class OpponentCharacterHandler : MonoBehaviour
 
         else if (other.gameObject.tag == "RotatingPlatformArea")
         {
-            navMeshRef.enabled = false;
+            navMeshRef.updatePosition = false;
             isRotatingPlatformArea = true;
-            transform.position = Vector3.Lerp(transform.position, new Vector3(initialPosition.x, initialPosition.y, transform.position.z), 100f);
             canMove = false;
+            isLerpEnabled = true;
+            lerpPositionX = 0;
         }
 
         else if (other.gameObject.tag == "FinishArea")
@@ -248,23 +252,18 @@ public class OpponentCharacterHandler : MonoBehaviour
         if (other.gameObject.tag == "RotatingPlatformArea")
         {
             movementSpeed = 5f;
-            transform.position = new Vector3(0, 0, transform.position.z);
-            transform.rotation = initialRotation;
+            lerpPositionX = 0;
+            //transform.rotation = initialRotation;
             isRotatingPlatformFinished = false;
-            canMove = true;
-            navMeshRef.enabled = true;
+            //navMeshRef.enabled = true;
             isRotatingPlatformArea = false;
+            isRotationLepEnabled = true;
+
+            navMeshRef.updatePosition = true;
+
+            canMove = true;
+
         }
     }
 
-    private void CameraUpdateFinished()
-    {
-        playerAnim.SetBool("isRunState", true);
-        canMove = true;
-        managerSO.CameraTrackPlayerMode(true);
-        playerRigidBody.detectCollisions = true;
-    }
-    private void OnDisable()
-    {
-    }
 }
