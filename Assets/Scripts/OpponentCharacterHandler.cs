@@ -38,13 +38,14 @@ public class OpponentCharacterHandler : MonoBehaviour
 
     private void Awake()
     {
+
         playerAnim = GetComponent<Animator>();
         playerRigidBody = GetComponent<Rigidbody>();
         navMeshRef = GetComponent<NavMeshAgent>();
+        movementSpeed = navMeshRef.speed;
 
         initialPosition = transform.position;
         initialRotation = transform.rotation;
-        movementSpeed = navMeshRef.speed;
 
 
     }
@@ -52,6 +53,7 @@ public class OpponentCharacterHandler : MonoBehaviour
 
     void Start()
     {
+
         canMove = true;
         playerAnim.SetBool("isRunState", true);
 
@@ -63,6 +65,7 @@ public class OpponentCharacterHandler : MonoBehaviour
     {
         if (!isLerpEnabled && canMove && !isRotatingPlatformArea)
         {
+            Debug.Log("aloo?");
             navMeshRef.destination = targetArea.transform.position;
         }
 
@@ -163,13 +166,11 @@ public class OpponentCharacterHandler : MonoBehaviour
 
 
         //transform.position = new Vector3(0, 0, 0);
-        //Camera.main.transform.position = initialCameraPosition;
     }
 
     IEnumerator WaitFallAnimation()
     {
         playerRigidBody.detectCollisions = false;
-        managerSO.CameraTrackPlayerMode(false);
         yield return new WaitForSeconds(1f);
 
         managerSO.GetPooledObject(transform.position, 1);

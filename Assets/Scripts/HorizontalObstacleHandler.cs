@@ -51,12 +51,12 @@ public class HorizontalObstacleHandler : MonoBehaviour
 
         if (shouldObstacleMoveLeft)
         {
-            obstacleRigidBody.velocity = new Vector3(movementSpeed, 0, 0);
+            obstacleRigidBody.velocity = new Vector3(movementSpeed  , 0, 0);
         }
 
         else
         {
-            obstacleRigidBody.velocity = new Vector3(movementSpeed * -1, 0, 0);
+            obstacleRigidBody.velocity = new Vector3(movementSpeed  * - 1, 0, 0);
         }
 
     }

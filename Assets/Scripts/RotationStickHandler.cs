@@ -16,8 +16,11 @@ public class RotationStickHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        characterRb = other.attachedRigidbody;
-        hitCollider = other;
+        if(other.tag != "PlayerCharacter")
+        {
+            characterRb = other.attachedRigidbody;
+            hitCollider = other;
+        }
 
 
         Debug.Log(rotatorRigidBody.name);
