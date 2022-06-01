@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     public GameObject playerRef;
     private ObjectPoolHandler instantiatedPoolObject;
     private List<GameObject> characterRankingArray = new List<GameObject>();
+    private int playerRanking;
 
     private GameObject dummyArrayElement;
     private void Awake()
@@ -63,7 +64,11 @@ public class GameManager : MonoBehaviour
                     }
                 }
             }
-            Debug.Log("PlayerRanking" + (characterRankingArray.IndexOf(playerRef) + 1));
+            if(playerRanking != (characterRankingArray.IndexOf(playerRef) + 1))
+            {
+                playerRanking = (characterRankingArray.IndexOf(playerRef) + 1);
+                managerSO.UpdatePlayerRanking(playerRanking);
+            }
 
         }
     }

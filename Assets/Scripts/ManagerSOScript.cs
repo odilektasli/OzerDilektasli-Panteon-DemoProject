@@ -27,6 +27,7 @@ public class ManagerSOScript : ScriptableObject
     public event ParticlePoolDelegate ParticlePlayEvent;
     public event PaintingWallDelegate PaintingWallActivationEvent;
     public event GUINumberUpdateDelegate UpdatePaintingPercantageEvent;
+    public event GUINumberUpdateDelegate UpdatePlayerRankingEvent;
 
 
     public void HitByObstacle()
@@ -76,5 +77,10 @@ public class ManagerSOScript : ScriptableObject
     public void UpdatePaintingPercentage(int updateNum)
     {
         UpdatePaintingPercantageEvent?.Invoke(updateNum);
+    }
+
+    public void UpdatePlayerRanking(int updateNum)
+    {
+        UpdatePlayerRankingEvent?.Invoke(updateNum);
     }
 }
